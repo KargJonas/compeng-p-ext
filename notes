@@ -1,0 +1,18 @@
+Base knowledge:
+  - The B extension has been ratified in April of 2024
+  - B stands for "bit manipulation"
+  - B is comprised of several component extensions (zba, zbb, zbc, zbs)
+  - 8/16-bit supported
+  - P is likely part of the unprivileged instructions
+  - we should prob limit to one quantization and one instructions
+  - Spike supports v0.9.2 (recent enough)
+  - the bulk of the work will be in extending llvm's backend
+  - the most interesting files are in llvm/lib/Target/RISCV
+    - RISCVInstrInfo.td		(define new instructions)
+    - RISCVISelLowering.td
+    - RISCVMCTargetDesc.td
+    - RISCVISelLowering.td	(lowering)
+    - RISCVIntrinsics.td	(intrinsics)
+
+A good starting point before we even mess with LLVM might be to write
+and run some RISC-V asm using the P-extension to get a feel for it.
