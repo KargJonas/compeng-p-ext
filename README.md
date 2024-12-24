@@ -1,3 +1,20 @@
+## Build `riscv-gnu-toolchain` with P-Extension support
+Issue [Reference](https://github.com/riscv-collab/riscv-gnu-toolchain/issues/1291#issuecomment-1629237904)
+```bash
+git clone https://github.com/riscv-collab/riscv-gnu-toolchain riscv-collab-gnu-toolchain
+cd riscv-collab-gnu-toolchain
+
+git clone https://github.com/plctlab/riscv-gcc -b riscv-gcc-p-ext riscv-gcc-p-ext
+git clone https://github.com/plctlab/riscv-binutils-gdb -b riscv-binutils-p-ext riscv-binutils-p-ext
+
+./configure --prefix=`pwd`/build --with-arch=rv64imafd_zpn --with-abi=lp64d --with-gcc-src=`pwd`/riscv-gcc-p-ext --with-binutils-src=`pwd`/riscv-binutils-p-ext
+
+make
+
+export RISCV=/workspace/riscv-collab-gnu-toolchain/build
+export PATH=$RISCV/bin:$PATH
+```
+
 ## Build `spike`
 ```bash
 export SPIKE=/workspace/riscv-isa-sim/build
@@ -6,8 +23,6 @@ export PATH=$SPIKE:$PATH
 
 ## Build `pk`
 ```bash
-export RISCV=/workspace/riscv-gnu-toolchain/build
-export PATH=$RISCV/bin:$PATH
 
 export CC=riscv64-unknown-elf-gcc
 export CXX=riscv64-unknown-elf-g++
@@ -32,6 +47,11 @@ export PK=/workspace/riscv-pk/build/pk
 ```
 
 ## Build and run `hello.c`
+```bash
+# Set up the environment first
+source /workspace/setup_vars.sh
+```
+
 ```bash
 # Compile a test program
 riscv64-unknown-elf-gcc -o hello hello.c
