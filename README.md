@@ -1,3 +1,60 @@
+# Computational Engineering Seminar - P Extension
+
+Hello, this README is where I keep track of everything that needs to be done to build and simulate RISC-V P-extension code.
+
+Current status:
+- I have managed to compile code for a rv64gcp target using custom versions of `riscv-gcc` and `riscv-binutils` that support the p extension.
+- Execution of compiled programs on `riscv-isa-sim` (aka spike) with this target works just fine as long as no P-Extension instructions are used.
+- The proxy kernel as compiled with the P-Ext target and also seems to work at this point
+- Even though spike lists P-Extension support (for v0.9.2), it will produce an illegal instruction error as soon as it encounters a P-Ext instruction.
+  - This could be due to a version/ISA mismatch that I am somehow incapable to realize
+  - Or because P-Extension support does not really work in spike
+- I have tried compiling every part of the toolchain/emulator/proxy kernel multiple times with varying parameters and versions, to no avail.
+
+## Some references
+[PR where P-Ext support was added to spike](https://github.com/riscvarchive/riscv-gcc/pull/258)
+[Working method to compile P-Ext code](https://github.com/riscv-collab/riscv-gnu-toolchain/issues/1291#issuecomment-1629237904)
+[Toolchain P-Ext support discussion](https://github.com/riscv-collab/riscv-gnu-toolchain/issues/1291)
+
+## The error:
+Test programs can be found in `/spike-test`. The following error was produced by `/spike-test/simd-matmul/test-p-ext.c`.
+```bash
+$ spike --isa=rv64gcp_zicsr_zifencei $PK test-p-ext2
+# OUTPUT:
+# bbl loader
+# RISC-V P Extension SIMD Addition Demo
+# z  0000000000000000 ra 000000000001022c sp 0000003ffffffb10 gp 000000000001ab50
+# tp 0000000000000000 t0 0000000000000003 t1 0000000000000007 t2 000000000000008a
+# s0 0000003ffffffb40 s1 0000000000000000 a0 000000000000000a a1 000000000001b360
+# a2 0000000000000026 a3 0008000700060005 a4 0004000300020001 a5 0000003ffffffb10
+# a6 0000000000000005 a7 0000000000000040 s2 0000000000000000 s3 0000000000000000
+# s4 0000000000000000 s5 0000000000000000 s6 0000000000000000 s7 0000000000000000
+# s8 0000000000000000 s9 0000000000000000 sA 0000000000000000 sB 0000000000000000
+# t3 0000000000000005 t4 0000000000000000 t5 0000000000000001 t6 0000000000002190
+# pc 0000000000010194 va/inst 0000000000d70777 sr 8000000200006020
+# An illegal instruction was executed!
+```
+
+## Looking at the specific location in the code:
+```bash
+$ riscv64-unknown-elf-objdump -d test-p-ext2 | grep -B5 -A5 10194
+
+# OUTPUT:
+# ...
+# 10192:       6294                    ld      a3,0(a3)
+# 10194:       00d70777                radd16  a4,a4,a3   ## this line is highlighted red
+# 10198:       e398                    sd      a4,0(a5)
+# ...
+```
+
+# Workflow
+
+## Build and run docker container with all build dependencies
+```bash
+docker image build -t compeng-env .
+./start_container.sh
+```
+
 ## Build `riscv-gnu-toolchain` with P-Extension support
 Issue [Reference](https://github.com/riscv-collab/riscv-gnu-toolchain/issues/1291#issuecomment-1629237904)
 ```bash
@@ -13,6 +70,8 @@ git clone https://github.com/plctlab/riscv-binutils-gdb -b riscv-binutils-p-ext 
 ./configure --prefix=`pwd`/build --with-arch=rv64gc_zicsr_zifencei_zpn --with-abi=lp64d --with-gcc-src=`pwd`/riscv-gcc-p-ext --with-binutils-src=`pwd`/riscv-binutils-p-ext
 
 make
+
+# use this commit: e7e84af088f9cacd576ed2b55d59312d9f09e637
 
 export RISCV=/workspace/riscv-collab-gnu-toolchain/build
 export PATH=$RISCV/bin:$PATH
@@ -82,51 +141,9 @@ riscv64-unknown-elf-gcc -march=rv64gc_zicsr_zifencei_zpn hello.c -o hello
 
 # Run the program with Spike
 #   this is where i am currently hitting a wall.
-#   this command does not seem to exit. it seems to use a lot of compute and there are no error codes
-#   or anything. my current best bet is that the version of PK that i compiled with the p-extension,
-#   causes issues. maybe because it should not be compiled with p ext support or maybe because
-#   i have a version mismatch somewhere.
+#   spike does not seem to recognize `radd16` when running code that uses the p extension
 #
 # Don't forget to use the --isa flag to specify which extensions you want.
 # spike --isa=rv64imafdp $PK test
 spike --isa=rv64gcp_zicsr_zifencei $PK hello
-```
-
-## Troubleshooting illegal instruction errors:
-
-When encountering an illegal instruction error like this:
-```bash
-$ spike --isa=rv64gcp_zicsr_zifencei $PK test-p-ext2
-# OUTPUT:
-# bbl loader
-# RISC-V P Extension SIMD Addition Demo
-# z  0000000000000000 ra 000000000001022c sp 0000003ffffffb10 gp 000000000001ab50
-# tp 0000000000000000 t0 0000000000000003 t1 0000000000000007 t2 000000000000008a
-# s0 0000003ffffffb40 s1 0000000000000000 a0 000000000000000a a1 000000000001b360
-# a2 0000000000000026 a3 0008000700060005 a4 0004000300020001 a5 0000003ffffffb10
-# a6 0000000000000005 a7 0000000000000040 s2 0000000000000000 s3 0000000000000000
-# s4 0000000000000000 s5 0000000000000000 s6 0000000000000000 s7 0000000000000000
-# s8 0000000000000000 s9 0000000000000000 sA 0000000000000000 sB 0000000000000000
-# t3 0000000000000005 t4 0000000000000000 t5 0000000000000001 t6 0000000000002190
-# pc 0000000000010194 va/inst 0000000000d70777 sr 8000000200006020
-# An illegal instruction was executed!
-```
-
-We can use the PC to find the exact location in the program that caused the error:
-```bash
-$ riscv64-unknown-elf-objdump -d test-p-ext2 | grep -B5 -A5 10194
-
-# OUTPUT:
-# 
-#    10184:       fd040793                addi    a5,s0,-48
-#    10188:       fe040713                addi    a4,s0,-32
-#    1018c:       6318                    ld      a4,0(a4)
-#    1018e:       fd840693                addi    a3,s0,-40
-#    10192:       6294                    ld      a3,0(a3)
-#    10194:       00d70777                radd16  a4,a4,a3   ## this line is highlighted red
-#    10198:       e398                    sd      a4,0(a5)
-#    1019a:       67e5                    lui     a5,0x19
-#    1019c:       8b078513                addi    a0,a5,-1872 # 188b0 <__clzdi2+0x34>
-#    101a0:       472000ef                jal     ra,10612 <puts>
-#    101a4:       fe042623                sw      zero,-20(s0)
 ```

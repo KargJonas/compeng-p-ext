@@ -6,6 +6,7 @@ riscv-collab-gnu-toolchain-new
 riscv-isa-sim
 riscv-isa-sim-old
 riscv-isa-sim-new
+riscv-isa-sim-nthu
 riscv-pk
 riscv-pk-old
 qemu
