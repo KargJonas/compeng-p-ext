@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# sets up variables after all dependencies have been compiled
+# such that you can easily build/run code
+
 export RISCV=/workspace/riscv-collab-gnu-toolchain/build
 export PATH=$RISCV/bin:$PATH
 
