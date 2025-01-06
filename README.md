@@ -112,8 +112,8 @@ spike --isa=rv64gcp_zicsr_zifencei $PK hello
 ```
 
 ## Some references
-[PR where P-Ext support was added to spike](https://github.com/riscvarchive/riscv-gcc/pull/258)
-[Working method to compile P-Ext code](https://github.com/riscv-collab/riscv-gnu-toolchain/issues/1291#issuecomment-1629237904)
-[Toolchain P-Ext support discussion](https://github.com/riscv-collab/riscv-gnu-toolchain/issues/1291)
-[Commit where P-Ext support was removed from spike](https://github.com/riscv-software-src/riscv-isa-sim/commit/c9468f6e024abb6d620ace295ef6e2e58e8f7eb2)
-[Information how the P-Ext was split into subsets](https://github.com/riscv/riscv-p-spec/blob/c3409c8edb7df262cb3db0ff323077120e5f7f04/P-ext-proposal.adoc#5-p-extension-subsets)
+- [PR where P-Ext support was added to spike](https://github.com/riscvarchive/riscv-gcc/pull/258)
+- [Commit where P-Ext support was removed from spike](https://github.com/riscv-software-src/riscv-isa-sim/commit/c9468f6e024abb6d620ace295ef6e2e58e8f7eb2)
+- [Working method to compile P-Ext code](https://github.com/riscv-collab/riscv-gnu-toolchain/issues/1291#issuecomment-1629237904)
+- [Toolchain P-Ext support discussion](https://github.com/riscv-collab/riscv-gnu-toolchain/issues/1291)
+- [Information how the P-Ext was split into subsets](https://github.com/riscv/riscv-p-spec/blob/c3409c8edb7df262cb3db0ff323077120e5f7f04/P-ext-proposal.adoc#5-p-extension-subsets)
