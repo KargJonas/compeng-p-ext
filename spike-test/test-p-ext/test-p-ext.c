@@ -9,7 +9,7 @@ void simd_add_demo() {
 
     // Use inline assembly for the P extension SIMD addition
     asm volatile (
-        "radd16 %[res], %[src1], %[src2]" // SIMD addition of 16-bit elements
+        "add16 %[res], %[src1], %[src2]" // SIMD addition of 16-bit elements
         : [res] "=r" (*(uint64_t *)result) // Output operand
         : [src1] "r" (*(uint64_t *)a),     // Input operand 1
           [src2] "r" (*(uint64_t *)b)      // Input operand 2
