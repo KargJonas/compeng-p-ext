@@ -52,5 +52,10 @@ RUN apt-get clean
 # Set the working directory
 WORKDIR /workspace
 
+ENV RISCV=/workspace/riscv-collab-gnu-toolchain/build
+ENV SPIKE=/workspace/riscv-isa-sim/build
+ENV PK=/workspace/riscv-pk/build/pk
+ENV PATH=$RISCV/bin:$SPIKE:$PATH
+
 # Set default command
 CMD ["/bin/bash"]
