@@ -10,3 +10,7 @@ riscv-isa-sim-nthu
 riscv-pk
 riscv-pk-old
 qemu
+
+spike-test/*
+!spike-test/**/*.S
+!spike-test/**/*.c
