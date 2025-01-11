@@ -42,7 +42,7 @@ cd /workspace
 git clone https://github.com/riscv-software-src/riscv-isa-sim.git
 
 cd riscv-isa-sim
-git checkout 37b0dc0 # this is the last commit that still has P extension support
+git checkout 37b0dc0b52b5536ab19af3a7678f1a1cd8087942 # this is the last commit that still has P extension support
 mkdir build
 cd build
 
