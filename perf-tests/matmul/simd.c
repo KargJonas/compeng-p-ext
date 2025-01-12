@@ -3,21 +3,20 @@
 
 #include "./util.h"
 
-// This only handles square matrices for simplicity
-void matmul_simd(int8_t* A, int8_t* B, int8_t* C, size_t n) {
+void matmul_simd(int8_t* A, int8_t* B, int8_t* C, size_t m, size_t n, size_t p) {
     // Assumption: A is in row-major order, B is in column-major order
-    // Assumption: n is a multiple of 8
+    // Assumption: m, n and p are multiples of 8
 
     // iterate over rows of A
-    for (size_t i = 0; i < n; i++) {
+    for (size_t i = 0; i < m; i++) {
 
         // iterate over columns of B
-        for (size_t j = 0; j < n; j++) {
+        for (size_t j = 0; j < p; j++) {
             uint64_t tmp, result = 0;
 
             // We can multiply eight 8-bit values at once
             for (size_t k = 0; k < n; k += 8) {
-                // B is transposed, so elements in a column are adjacent
+                // B is in column-major order, so elements in a column are adjacent
                 uint64_t a_chunk = *(uint64_t*)(A + i * n + k);
                 uint64_t b_chunk = *(uint64_t*)(B + j * n + k);
 
@@ -48,7 +47,7 @@ void matmul_simd(int8_t* A, int8_t* B, int8_t* C, size_t n) {
                 sum += ((int8_t*)&result)[k];
             }
             
-            C[i * n + j] = sum;
+            C[i * p + j] = sum;
         }
     }
 }
@@ -56,27 +55,23 @@ void matmul_simd(int8_t* A, int8_t* B, int8_t* C, size_t n) {
 int main() {
     srand(0);
 
-    size_t n = 16;
-    size_t nelem = n * n;
-    size_t nbytes = nelem * sizeof(int8_t);
+    size_t m = 8, n = 16, p = 18;
     
     // Allocate matrices
-    int8_t* A = malloc(nbytes);
-    int8_t* B = malloc(nbytes);
-    int8_t* result = malloc(nbytes);
+    int8_t* A = malloc(m * n * sizeof(int8_t));
+    int8_t* B = malloc(n * p * sizeof(int8_t));
+    int8_t* result = malloc(m * p * sizeof(int8_t));
     
     // Fill matrices with random numbers
     // Since we're multiplying matrices, keep numbers small (-4 to 4)
     // to prevent overflow (max result would be 4 * 4 * 3 = 48)
-    for(int i = 0; i < nelem; i++) {
-        A[i] = (rand() % 9) - 4;  // Random numbers from -4 to 4
-        B[i] = (rand() % 9) - 4;
-    }
+    for(int i = 0; i < m * n; i++) A[i] = (rand() % 9) - 4; // Random numbers from -4 to 4
+    for(int i = 0; i < n * p; i++) B[i] = (rand() % 9) - 4; // Random numbers from -4 to 4
 
     transpose_matrix_inplace(B, n);
     
     // Run both versions
-    matmul_simd(A, B, result, n);
+    matmul_simd(A, B, result, m, n, p);
     
     printf("Matrix A\n");
     print_matrix(A, n);
