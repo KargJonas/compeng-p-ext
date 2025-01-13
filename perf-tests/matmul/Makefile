@@ -4,7 +4,7 @@ SPIKE = spike
 SPIKE_FLAGS = --isa=rv64gcp_zicsr_zifencei
 PK ?= $(shell echo $$PK)  # Get proxy kernel path from environment
 
-.PHONY: all clean run run-% asm
+.PHONY: all clean run run-% asm debug
 
 # Default target
 all: main
@@ -12,6 +12,10 @@ all: main
 # Generic compilation rule for any .c file
 %: %.c
 	$(CC) $(CFLAGS) $< -o $@
+
+# Debug build with symbols
+debug: CFLAGS += -g
+debug: main
 
 # Generate assembly for any .c file
 asm:
@@ -33,7 +37,7 @@ run-%: %
 	$(SPIKE) $(SPIKE_FLAGS) $(PK) ./$*
 
 clean:
-	rm -f main $(wildcard *.o) $(wildcard *.s)
+	rm -f main $(wildcard *.o) $(wildcard *.s) $(wildcard *.S)
 
 # Special rule to allow the second argument to "make run" or "make asm" to be ignored
 %:

@@ -68,15 +68,16 @@ cd riscv-pk
 # that are not supported in the old versions of gcc/gdb that we are using
 git checkout bc6e624fe1167b088af5694bb74eb68d61dde8ba
 
-export CC=riscv64-unknown-elf-gcc
-export CXX=riscv64-unknown-elf-g++
-export CFLAGS="-march=rv64gc_zicsr_zifencei_zpn"
-export CXXFLAGS="-march=rv64gc_zicsr_zifencei_zpn"
-
 mkdir build
 cd build
 
-../configure --prefix=$RISCV --host=riscv64-unknown-elf CC=$CC CXX=$CXX CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS"
+../configure \ 
+    --prefix=$RISCV \ 
+    --host=riscv64-unknown-elf \ 
+    CC=riscv64-unknown-elf-gcc \ 
+    CXX=riscv64-unknown-elf-g++ \ 
+    CFLAGS="-march=rv64gc_zicsr_zifencei_zpn" \ 
+    CXXFLAGS="-march=rv64gc_zicsr_zifencei_zpn"
 
 make -j$(nproc)
 make install
