@@ -9,45 +9,42 @@
 	.globl	matmul_basic
 	.type	matmul_basic, @function
 matmul_basic:
-	mv	a6,a3
-	mv	t4,a1
-	beq	a3,zero,.L1
 	mv	t1,a0
+	mv	t0,a3
+	mv	t5,a1
+	mv	t4,a4
+	mv	a0,a5
+	beq	a3,zero,.L1
+	beq	a5,zero,.L1
 	mv	t3,a2
-	add	a0,a0,a3
-	li	t5,0
+	add	a6,t1,a4
+	li	t6,0
 .L3:
 	li	a7,0
-.L6:
-	add	a2,t4,a7
+.L8:
+	add	a3,t5,a7
 	mv	a4,t1
 	li	a5,0
+	beq	t4,zero,.L7
 .L4:
-	lb	a3,0(a4)
-	lb	a1,0(a2)
+	lbu	a1,0(a4)
+	lbu	a2,0(a3)
 	addi	a4,a4,1
-	add	a2,a2,a6
-	addw	a3,a3,a1
-	addw	a5,a3,a5
-	slli	a3,a5,48
-	slliw	a5,a5,16
-	srli	a3,a3,48
-	sraiw	a5,a5,16
-	bne	a0,a4,.L4
-	add	a5,t3,a7
-	sb	a3,0(a5)
-	addi	a5,a7,1
-	beq	a6,a5,.L5
-	mv	a7,a5
-	j	.L6
-.L5:
-	addi	a5,t5,1
-	add	t3,t3,a6
-	add	t1,t1,a6
-	add	a0,a0,a6
-	beq	a7,t5,.L1
-	mv	t5,a5
-	j	.L3
+	add	a3,a3,a0
+	maddr32	a5, a1, a2
+	slliw	a5,a5,24
+	sraiw	a5,a5,24
+	bne	a4,a6,.L4
+.L7:
+	add	a4,t3,a7
+	sb	a5,0(a4)
+	addi	a7,a7,1
+	bne	a0,a7,.L8
+	addi	t6,t6,1
+	add	t3,t3,a0
+	add	t1,t1,t4
+	add	a6,a6,t4
+	bne	t0,t6,.L3
 .L1:
 	ret
 	.size	matmul_basic, .-matmul_basic

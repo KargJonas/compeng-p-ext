@@ -9,52 +9,60 @@
 	.globl	matmul_simd
 	.type	matmul_simd, @function
 matmul_simd:
-	beq	a3,zero,.L12
-	addi	sp,sp,-16
-	addi	a5,sp,8
-	mv	t5,a2
-	add	a7,a2,a3
-	mv	a6,a3
-	mv	t6,a0
-	mv	t0,a1
-	li	t3,0
+	mv	t2,a1
+	mv	t0,a3
+	mv	t6,a2
+	mv	a1,a4
+	mv	t5,a5
+	beq	a3,zero,.L1
+	beq	a5,zero,.L1
+	add	t1,a2,a5
+	mv	a6,a0
 	li	t4,0
-	add	a2,a3,a5
+	li	t3,0
 .L3:
-	add	t1,t6,t3
-	mv	a0,t0
-	add	a1,t5,t3
-.L5:
-	ld	a4,0(t1)
-	ld	a5,0(a0)
- #APP
-# 14 "simd_bare.c" 1
-	add8 a4, a4, a5
-# 0 "" 2
- #NO_APP
+	add	a7,t6,t4
+	mv	a0,t2
+.L7:
 	li	a5,0
-	sd	a4,8(sp)
-	addi	a4,sp,8
+	li	a3,0
+	beq	a1,zero,.L6
 .L4:
-	lb	a3,0(a4)
-	addi	a4,a4,1
-	addw	a5,a3,a5
-	slli	a3,a5,48
-	slliw	a5,a5,16
-	srli	a3,a3,48
-	sraiw	a5,a5,16
-	bne	a2,a4,.L4
-	sb	a3,0(a1)
-	addi	a1,a1,1
-	add	a0,a0,a6
-	bne	a1,a7,.L5
-	addi	t4,t4,1
-	add	t3,t3,a6
-	add	a7,a7,a6
-	bne	a6,t4,.L3
-	addi	sp,sp,16
-	jr	ra
-.L12:
+	add	a4,a6,a5
+	add	a2,a0,a5
+	ld	a4,0(a4)		# Load A chunk
+	ld	a2,0(a2)		# Load B chunk
+	mul8 a4, a4, a2		# Simd multiplication of chunks
+	add8 a3, a3, a4		# Simd accumulation of chunks
+	addi	a5,a5,8		# k += 8
+	bgtu	a1,a5,.L4	# Next loop iteration
+	srli	a4,a3,16	# Perform horizontal sum only once
+	srli	a5,a3,8
+	addw	a5,a5,a4
+	addw	a5,a5,a3
+	srli	a4,a3,24
+	addw	a5,a5,a4
+	srli	a4,a3,32
+	addw	a5,a5,a4
+	srli	a4,a3,40
+	addw	a5,a5,a4
+	srli	a4,a3,48
+	addw	a5,a5,a4
+	srli	a3,a3,56
+	addw	a3,a5,a3
+	slliw	a3,a3,24
+	sraiw	a3,a3,24
+.L6:
+	sb	a3,0(a7)
+	addi	a7,a7,1
+	add	a0,a0,a1
+	bne	t1,a7,.L7
+	addi	t3,t3,1
+	add	t4,t4,t5
+	add	t1,t1,t5
+	add	a6,a6,a1
+	bne	t0,t3,.L3
+.L1:
 	ret
 	.size	matmul_simd, .-matmul_simd
 	.ident	"GCC: (g1da1a76d5d1) 10.2.0"

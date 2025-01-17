@@ -3,7 +3,7 @@
 
 #include "./util.h"
 
-// #define TESTING
+#define TESTING
 
 void matmul_basic(int8_t* A, int8_t* B, int8_t* C, size_t m, size_t n, size_t p) {
 
@@ -18,10 +18,7 @@ void matmul_basic(int8_t* A, int8_t* B, int8_t* C, size_t m, size_t n, size_t p)
 
             int8_t sum = 0;
 
-            // Iterate over row/column entries and accumulate the products
             for (size_t k = 0; k < n; k++) {
-                // The addition instead of multiplication is intentional to
-                // make this algorithm comparable with the SIMD version
                 sum += A[i * n + k] + B[k * p + j];
             }
 
@@ -67,10 +64,7 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i < m * n; i++) A[i] = (rand() % 9) - 4; // Random numbers from -4 to 4
     for(int i = 0; i < n * p; i++) B[i] = (rand() % 9) - 4; // Random numbers from -4 to 4
 #endif
-
-    transpose_matrix_inplace(B, n);
     
-    // Run both versions
     matmul_basic(A, B, result, m, n, p);
     
 #ifdef TESTING
