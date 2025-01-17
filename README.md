@@ -1,5 +1,7 @@
 # Computational Engineering Seminar - P Extension
 
+> Note: `/perf-tests/matmul` contains a set of matrix multiplication implementations, a Makefile to build/run them, a python script to automate instruction counting, as well as CSV results containing the numbers of instructions used for matrix multiplications on matrices starting at 8x8 going up to 120x120.
+
 # Workflow
 
 ## Build and run docker container with all build dependencies
